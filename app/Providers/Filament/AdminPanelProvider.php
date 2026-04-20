@@ -33,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->id('admin')
+            ->id('admin1')
             ->path('admin')
             ->login()
             ->brandLogoHeight('3rem')

@@ -365,7 +365,6 @@ CREATE TABLE `migrations` (
 
 --
 -- Dumping data for table `migrations`
---
 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '0001_01_01_000000_create_users_table', 1),
@@ -419,7 +418,7 @@ CREATE TABLE `peminjamans` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
+-- 
 -- Dumping data for table `peminjamans`
 --
 
@@ -493,9 +492,7 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `google_id`, `name`, `email`, `avatar`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, NULL, 'Nama Orang', 'admin@uin.ar-raniry.ac.id', NULL, NULL, '$2y$12$LWgvhXQaTJdL8o36XMw5Ke5X193UXv31cQ6y1BvFkXLrGRHBpgDim', NULL, '2025-08-05 19:35:39', '2025-08-27 06:38:43'),
-(2, '116918058041646075071', 'EGI DISA HABIBIE', '220705026@student.ar-raniry.ac.id', NULL, NULL, NULL, NULL, '2025-10-16 04:43:18', '2025-10-16 04:43:18');
+ 
 
 --
 -- Indexes for dumped tables

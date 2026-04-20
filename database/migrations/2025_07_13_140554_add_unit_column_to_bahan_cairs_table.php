@@ -12,8 +12,9 @@ return new class extends Migration
 public function up(): void
 {
     Schema::table('bahan_cairan_lamas', function (Blueprint $table) {
-        $table->decimal('sisa_bahan', 8, 2)->change();
-        $table->string('unit', 20)->nullable()->after('sisa_bahan');
+        if (!Schema::hasColumn('bahan_cairan_lamas', 'sisa_bahan')) {
+            $table->string('sisa_bahan')->nullable();
+        }
     });
 }
 
