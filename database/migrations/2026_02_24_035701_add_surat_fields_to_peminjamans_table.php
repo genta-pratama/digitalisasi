@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('peminjamans', function (Blueprint $table) {
             $table->string('nomor_surat')->nullable()->after('no_hp');
-            $table->date('tanggal_pinjam')->nullable()->after('nomor_surat');
+            // $table->date('tanggal_pinjam')->nullable()->after('nomor_surat');
         });
     }
 
