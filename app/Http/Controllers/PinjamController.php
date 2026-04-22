@@ -18,7 +18,7 @@ class PinjamController extends Controller
 {
     public function create()
     {
-        // ✅ Kalau belum login, redirect ke halaman login dulu
+        // Kalau belum login, redirect ke halaman login dulu
         if (!Auth::check()) {
             return redirect()->route('login');
         }
@@ -50,8 +50,6 @@ class PinjamController extends Controller
         $no_hp = $validatedData['no_hp'];
 
         // 2. Cek peminjaman aktif per nomor_surat
-        // Sebuah surat dianggap AKTIF jika masih ada item yang Menunggu/Disetujui
-        // Surat dianggap SELESAI jika semua itemnya Dikembalikan atau Ditolak
         $nomorSuratAktif = Peminjaman::where(function ($query) use ($nim, $nama, $no_hp) {
                 $query->where('nim_peminjam', $nim)
                     ->orWhere('nama_peminjam', $nama)
@@ -104,6 +102,7 @@ class PinjamController extends Controller
                 }
 
                 $peminjaman = Peminjaman::create([
+                    'user_id'           => Auth::id(), // ✅ Simpan user_id
                     'nama_peminjam'     => $request->nama_peminjam,
                     'nim_peminjam'      => $request->nim_peminjam,
                     'no_hp'             => $validatedData['no_hp'],

@@ -131,20 +131,27 @@
                     {{-- ===== LIST NOTIFIKASI (support surat peminjaman & surat bebas lab) ===== --}}
                     <div class="max-h-72 overflow-y-auto divide-y divide-gray-50">
                         @forelse(Auth::user()->notifications->take(10) as $notif)
-                            @php $isBebas = ($notif->data['tipe'] ?? '') === 'surat_bebas_lab'; @endphp
+                            @php
+                                $tipe = $notif->data['tipe'] ?? '';
+                                $isBebas = $tipe === 'surat_bebas_lab';
+                                $isDisetujui = $tipe === 'peminjaman_disetujui';
+                                $isDikonfirmasi = $tipe === 'pengembalian_dikonfirmasi';
+                            @endphp
                             <div class="flex items-start px-4 py-3 hover:bg-gray-50 transition
                                         {{ is_null($notif->read_at) ? ($isBebas ? 'bg-green-50' : 'bg-indigo-50') : '' }}">
 
                                 {{-- Icon --}}
                                 <div class="flex-shrink-0 mt-0.5">
                                     <div class="w-8 h-8 rounded-full flex items-center justify-center
-                                                {{ is_null($notif->read_at) ? ($isBebas ? 'bg-green-100' : 'bg-indigo-100') : 'bg-gray-100' }}">
+                                                {{ is_null($notif->read_at) ? ($isBebas ? 'bg-green-100' : ($isDisetujui ? 'bg-blue-100' : ($isDikonfirmasi ? 'bg-purple-100' : 'bg-indigo-100'))) : 'bg-gray-100' }}">
                                         @if($isBebas)
-                                            <i class="fa-solid fa-certificate text-xs
-                                                      {{ is_null($notif->read_at) ? 'text-green-600' : 'text-gray-400' }}"></i>
+                                            <i class="fa-solid fa-certificate text-xs {{ is_null($notif->read_at) ? 'text-green-600' : 'text-gray-400' }}"></i>
+                                        @elseif($isDisetujui)
+                                            <i class="fa-solid fa-check-circle text-xs {{ is_null($notif->read_at) ? 'text-blue-600' : 'text-gray-400' }}"></i>
+                                        @elseif($isDikonfirmasi)
+                                            <i class="fa-solid fa-rotate-left text-xs {{ is_null($notif->read_at) ? 'text-purple-600' : 'text-gray-400' }}"></i>
                                         @else
-                                            <i class="fa-solid fa-file-lines text-xs
-                                                      {{ is_null($notif->read_at) ? 'text-indigo-600' : 'text-gray-400' }}"></i>
+                                            <i class="fa-solid fa-file-lines text-xs {{ is_null($notif->read_at) ? 'text-indigo-600' : 'text-gray-400' }}"></i>
                                         @endif
                                     </div>
                                 </div>
@@ -153,17 +160,22 @@
                                 <div class="ml-3 flex-1 min-w-0">
                                     {{-- Badge tipe --}}
                                     @if($isBebas)
-                                        <span class="inline-block text-xs font-bold text-green-700 bg-green-100
-                                                     px-2 py-0.5 rounded-full mb-1">
+                                        <span class="inline-block text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full mb-1">
                                             ✓ Surat Bebas Lab
                                         </span>
+                                    @elseif($isDisetujui)
+                                        <span class="inline-block text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full mb-1">
+                                            ✅ Peminjaman Disetujui
+                                        </span>
+                                    @elseif($isDikonfirmasi)
+                                        <span class="inline-block text-xs font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full mb-1">
+                                            🔄 Pengembalian Dikonfirmasi
+                                        </span>
                                     @else
-                                        <span class="inline-block text-xs font-bold text-indigo-700 bg-indigo-100
-                                                     px-2 py-0.5 rounded-full mb-1">
+                                        <span class="inline-block text-xs font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full mb-1">
                                             📄 Surat Peminjaman
                                         </span>
                                     @endif
-
                                     <p class="text-sm font-medium text-gray-800 leading-snug">
                                         {{ $notif->data['pesan'] ?? 'Notifikasi baru' }}
                                     </p>
@@ -598,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function () {
     renderList();
     if ("{{ $errors->any() }}") toggleModal(true);
 
-    {{-- ===== NOTIFIKASI SUKSES + TOMBOL DOWNLOAD SURAT ===== --}}
+    //{{-- ===== NOTIFIKASI SUKSES + TOMBOL DOWNLOAD SURAT ===== --}}
     @if (session('success'))
         @if (session('nomor_surat'))
             Swal.fire({
@@ -622,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function () {
         @endif
     @endif
 
-    {{-- ===== NOTIFIKASI ERROR ===== --}}
+    //{{-- ===== NOTIFIKASI ERROR ===== --}}
     @if ($errors->any())
         Swal.fire({toast:true,position:'top-end',icon:'error',title:"{{ $errors->first() }}",showConfirmButton:false,timer:5000,timerProgressBar:true,
             didOpen:t=>{ t.addEventListener('mouseenter',Swal.stopTimer); t.addEventListener('mouseleave',Swal.resumeTimer); }});
@@ -657,4 +669,4 @@ document.addEventListener('DOMContentLoaded', function () {
                     </li>
                     <li class="flex items-center">
                         <i class="fa-solid fa-phone text-indigo-200 mr-3 flex-shrink-0"></i>
-                        <a class="text-indigo-100 hover:text-white transitio
+                        <a class="text-indigo-100 hover:text-white transition

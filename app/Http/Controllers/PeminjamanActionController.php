@@ -1,15 +1,16 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Models\User;
+use App\Notifications\PeminjamanDisetujuiNotification;
+use App\Notifications\PengembalianDikonfirmasiNotification;
 use Illuminate\Http\Request;
 
 class PeminjamanActionController extends Controller
 {
     /**
      * Setujui 1 item
-     * GET /admin/peminjaman/{id}/setujui-item
      */
     public function setujuiItem(int $id)
     {
@@ -18,12 +19,21 @@ class PeminjamanActionController extends Controller
             return redirect('/admin/peminjamen')->with('error', 'Status tidak valid.');
         }
         $item->update(['status' => 'Disetujui', 'tanggal_pinjam' => now()]);
+
+        // Kirim notifikasi ke user
+        if ($item->user_id) {
+            $user = User::find($item->user_id);
+            if ($user) {
+                $jumlah = Peminjaman::where('nomor_surat', $item->nomor_surat)->count();
+                $user->notify(new PeminjamanDisetujuiNotification($item->nomor_surat, $jumlah));
+            }
+        }
+
         return redirect('/admin/peminjamen')->with('success', 'Barang "' . ($item->peminjamable?->nama ?? '-') . '" berhasil disetujui.');
     }
 
     /**
      * Konfirmasi pengembalian 1 item
-     * GET /admin/peminjaman/{id}/kembalikan-item/{kondisi}
      */
     public function kembalikanItem(int $id, string $kondisi)
     {
@@ -38,7 +48,6 @@ class PeminjamanActionController extends Controller
         $isAlat = $item->peminjamable_type === 'App\\Models\\Alat';
         $barang = $item->peminjamable;
 
-        // Alat baik → stok bertambah. Alat rusak & bahan → stok tidak bertambah
         if ($isAlat && $kondisi === 'baik') {
             $barang->increment('stok', $item->jumlah);
         }
@@ -49,6 +58,15 @@ class PeminjamanActionController extends Controller
             'kondisi_pengembalian' => $isAlat ? $kondisi : 'baik',
         ]);
 
+        // Kirim notifikasi ke user
+        if ($item->user_id) {
+            $user = User::find($item->user_id);
+            if ($user) {
+                $jumlah = Peminjaman::where('nomor_surat', $item->nomor_surat)->count();
+                $user->notify(new PengembalianDikonfirmasiNotification($item->nomor_surat, $jumlah));
+            }
+        }
+
         if ($isAlat && $kondisi === 'rusak') {
             return redirect('/admin/peminjamen')->with('warning', 'Alat "' . ($barang?->nama ?? '-') . '" dilaporkan RUSAK.');
         }
@@ -57,7 +75,6 @@ class PeminjamanActionController extends Controller
 
     /**
      * Konfirmasi semua pengembalian dalam 1 surat sekaligus
-     * GET /admin/peminjaman/{nomorSurat}/kembalikan-semua?kondisi[id]=baik/rusak
      */
     public function kembalikanSemua(Request $request, string $nomorSurat)
     {
@@ -69,7 +86,8 @@ class PeminjamanActionController extends Controller
             ->where('status', 'Disetujui')
             ->get();
 
-        $adaRusak = false;
+        $adaRusak  = false;
+        $firstItem = $items->first();
 
         foreach ($items as $item) {
             $isAlat  = $item->peminjamable_type === 'App\\Models\\Alat';
@@ -81,11 +99,9 @@ class PeminjamanActionController extends Controller
 
             $barang = $item->peminjamable;
 
-            // Alat baik → stok bertambah
             if ($isAlat && $kondisi === 'baik') {
                 $barang->increment('stok', $item->jumlah);
             }
-            // Alat rusak & bahan → stok tidak bertambah
 
             $item->update([
                 'status'               => 'Dikembalikan',
@@ -98,6 +114,14 @@ class PeminjamanActionController extends Controller
             }
         }
 
+        // Kirim notifikasi ke user
+        if ($firstItem && $firstItem->user_id) {
+            $user = User::find($firstItem->user_id);
+            if ($user) {
+                $user->notify(new PengembalianDikonfirmasiNotification($nomorSurat, $items->count()));
+            }
+        }
+
         if ($adaRusak) {
             return redirect('/admin/peminjamen')->with('warning', 'Beberapa alat dilaporkan RUSAK. Surat Bebas Lab tidak dapat diterbitkan.');
         }
@@ -105,8 +129,7 @@ class PeminjamanActionController extends Controller
     }
 
     /**
-     * Tandai alat rusak sudah diganti/diperbaiki → kondisi jadi baik
-     * GET /admin/peminjaman/{id}/tandai-baik
+     * Tandai alat rusak sudah diganti/diperbaiki
      */
     public function tandaiBaik(int $id)
     {
@@ -118,7 +141,6 @@ class PeminjamanActionController extends Controller
 
         $barang = $item->peminjamable;
 
-        // Tambahkan stok karena alat sudah diganti baru
         if ($item->peminjamable_type === 'App\\Models\\Alat') {
             $barang->increment('stok', $item->jumlah);
         }
@@ -130,14 +152,28 @@ class PeminjamanActionController extends Controller
 
     /**
      * Setujui semua item dalam 1 nomor surat
-     * GET /admin/peminjaman/{nomorSurat}/setujui-semua
      */
     public function setujuiSemua(string $nomorSurat)
     {
         $nomorSurat = urldecode($nomorSurat);
-        Peminjaman::where('nomor_surat', $nomorSurat)
+
+        $items = Peminjaman::where('nomor_surat', $nomorSurat)
             ->where('status', 'Menunggu Persetujuan')
-            ->update(['status' => 'Disetujui', 'tanggal_pinjam' => now()]);
+            ->get();
+
+        foreach ($items as $item) {
+            $item->update(['status' => 'Disetujui', 'tanggal_pinjam' => now()]);
+        }
+
+        // Kirim notifikasi ke user
+        $firstItem = $items->first();
+        if ($firstItem && $firstItem->user_id) {
+            $user = User::find($firstItem->user_id);
+            if ($user) {
+                $user->notify(new PeminjamanDisetujuiNotification($nomorSurat, $items->count()));
+            }
+        }
+
         return redirect('/admin/peminjamen')->with('success', 'Semua barang dalam surat ' . $nomorSurat . ' berhasil disetujui.');
     }
 }

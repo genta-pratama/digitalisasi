@@ -240,7 +240,7 @@
                     <path d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" fill="#4CAF50"/>
                     <path d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.021 35.595 44 30.138 44 24c0-1.341-.138-2.65-.389-3.917z" fill="#1976D2"/>
                 </svg>
-                <span>Masuk sebagai Mahasiswa</span>
+                <span>Masuk sebagai Pengguna</span>
             </a>
 
             <div class="divider">atau</div>
@@ -256,11 +256,10 @@
             <div class="info-box">
                 <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 flex-shrink-0"></i>
                 <div>
-                    <p class="text-blue-800 text-sm font-semibold mb-0.5">Khusus Civitas Akademika</p>
+                    <p class="text-blue-800 text-sm font-semibold mb-0.5">Khusus Mahasiswa & Civitas Akademika UIN Ar-Raniry</p>
                     <p class="text-blue-600 text-xs leading-relaxed">
-                        Login mahasiswa hanya untuk email
-                        <strong>@uin.ar-raniry.ac.id</strong>.
-                        Pastikan Anda menggunakan akun Google institusi.
+                        Menggunakan akun Google institusi UIN Ar-Raniry
+                        (<strong>@uin.ar-raniry.ac.id</strong> / <strong>@ar-raniry.ac.id</strong> / <strong>@student.ar-raniry.ac.id</strong>).
                     </p>
                 </div>
             </div>
