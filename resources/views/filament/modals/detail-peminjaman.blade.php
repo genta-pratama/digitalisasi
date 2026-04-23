@@ -102,7 +102,6 @@
 
                         @elseif($item->status === 'Dikembalikan')
                             @if($isRusak)
-                                {{-- Tombol edit kondisi rusak → baik (barang diganti) --}}
                                 <span style="font-size:12px;font-weight:600;color:#dc2626;">⚠ Rusak</span>
                                 <a href="{{ route('admin.peminjaman.tandai-baik', $item->id) }}"
                                     onclick="return confirm('Tandai alat ini sudah DIGANTI/DIPERBAIKI dan kondisinya BAIK?')"
@@ -119,7 +118,7 @@
                     </div>
                 </div>
 
-                {{-- Panel konfirmasi kondisi (slide Alpine) --}}
+                {{-- Panel konfirmasi kondisi per item (slide Alpine) --}}
                 @if($item->status === 'Disetujui')
                 <div x-show="open" x-transition
                      style="border-top:1px solid #e5e7eb;padding:12px 14px;background:#f9fafb;">
@@ -164,65 +163,21 @@
             @endforeach
         </div>
 
-        {{-- ✅ KONFIRMASI SEMUA PENGEMBALIAN — tampil jika ada >1 item Disetujui --}}
-        @if($items->where('status', 'Disetujui')->count() > 0)
-        <div x-data="{ openAll: false }" style="margin-top:12px;">
-            <button type="button" @click="openAll = !openAll"
-                style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;background:#1d4ed8;color:#fff;border:none;cursor:pointer;">
+        {{-- ✅ KONFIRMASI SEMUA PENGEMBALIAN — tanpa cek kondisi, langsung konfirmasi semua baik --}}
+        @if($items->where('status', 'Disetujui')->count() > 1)
+        <div style="margin-top:12px;">
+            <a href="{{ route('admin.peminjaman.kembalikan-semua', urlencode($record->nomor_surat)) }}"
+                onclick="return confirm('Konfirmasi semua pengembalian sebagai kondisi BAIK?')"
+                style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;background:#1d4ed8;color:#fff;text-decoration:none;">
                 ↩ Konfirmasi Semua Pengembalian ({{ $items->where('status', 'Disetujui')->count() }} barang)
-            </button>
-
-            <div x-show="openAll" x-transition
-                 style="margin-top:8px;border:1px solid #bfdbfe;border-radius:8px;padding:14px;background:#eff6ff;">
-                <p style="font-size:12px;font-weight:600;color:#1e40af;margin-bottom:12px;">
-                    Pilih kondisi untuk setiap barang yang belum dikembalikan:
-                </p>
-                <form method="GET" action="{{ route('admin.peminjaman.kembalikan-semua', $record->nomor_surat) }}">
-                    <div class="space-y-2" style="margin-bottom:12px;">
-                        @foreach($items->where('status', 'Disetujui') as $item)
-                        @php
-                            $tipeItem = class_basename($item->peminjamable_type);
-                            $isAlatItem = $tipeItem === 'Alat';
-                        @endphp
-                        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-radius:6px;border:1px solid #e5e7eb;">
-                            <div>
-                                <p style="font-size:12px;font-weight:600;">{{ $item->peminjamable?->nama ?? '-' }}</p>
-                                <p style="font-size:11px;color:#6b7280;">{{ $isAlatItem ? 'Alat' : 'Bahan sekali pakai' }}</p>
-                            </div>
-                            @if($isAlatItem)
-                            <select name="kondisi[{{ $item->id }}]" required
-                                style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;cursor:pointer;">
-                                <option value="">Pilih kondisi...</option>
-                                <option value="baik">✓ Baik</option>
-                                <option value="rusak">⚠ Rusak</option>
-                            </select>
-                            @else
-                            <input type="hidden" name="kondisi[{{ $item->id }}]" value="baik">
-                            <span style="font-size:11px;color:#16a34a;font-weight:600;">✓ Selesai digunakan</span>
-                            @endif
-                        </div>
-                        @endforeach
-                    </div>
-                    <div style="display:flex;gap:8px;justify-content:flex-end;">
-                        <button type="button" @click="openAll = false"
-                            style="padding:8px 14px;font-size:12px;border-radius:8px;border:1px solid #d1d5db;background:transparent;color:#6b7280;cursor:pointer;">
-                            Batal
-                        </button>
-                        <button type="submit"
-                            onclick="return confirm('Konfirmasi semua pengembalian?')"
-                            style="padding:8px 16px;font-size:12px;font-weight:600;border-radius:8px;background:#16a34a;color:#fff;border:none;cursor:pointer;">
-                            ✓ Konfirmasi Semua
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </a>
         </div>
         @endif
 
         {{-- Setujui Semua (untuk yg masih Menunggu) --}}
         @if($items->where('status', 'Menunggu Persetujuan')->count() > 1)
         <div style="margin-top:8px;display:flex;justify-content:flex-end;">
-            <a href="{{ route('admin.peminjaman.setujui-semua', $record->nomor_surat) }}"
+            <a href="{{ route('admin.peminjaman.setujui-semua', urlencode($record->nomor_surat)) }}"
                 onclick="return confirm('Setujui semua barang yang masih menunggu?')"
                 style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;background:#16a34a;color:#fff;text-decoration:none;">
                 ✓ Setujui Semua ({{ $items->where('status', 'Menunggu Persetujuan')->count() }} barang)
