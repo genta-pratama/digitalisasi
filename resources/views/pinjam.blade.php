@@ -313,7 +313,7 @@
                                     <p class="text-sm font-semibold text-gray-800 mt-0.5" x-text="modalData?.nama_peminjam"></p>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">NIM</p>
+                                    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">NIM/NIP</p>
                                     <p class="text-sm font-semibold text-gray-800 mt-0.5" x-text="modalData?.nim_peminjam"></p>
                                 </div>
                                 <div x-show="modalData?.tanggal_pinjam">
@@ -587,7 +587,7 @@
                             <input type="text" id="nama_peminjam" name="nama_peminjam" required value="{{ old('nama_peminjam') }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm">
                         </div>
                         <div>
-                            <label for="nim_peminjam" class="block text-sm font-medium text-gray-700">NIM <span class="text-red-500">*</span></label>
+                            <label for="nim_peminjam" class="block text-sm font-medium text-gray-700">NIM/NIP <span class="text-red-500">*</span></label>
                             <input type="text" id="nim_peminjam" name="nim_peminjam" required value="{{ old('nim_peminjam') }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm">
                         </div>
                         <div class="md:col-span-2">
@@ -799,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function () {
     renderList();
     if ("{{ $errors->any() }}") toggleModal(true);
 
-    {{-- ===== NOTIFIKASI SUKSES + TOMBOL DOWNLOAD SURAT ===== --}}
+    //{{-- ===== NOTIFIKASI SUKSES + TOMBOL DOWNLOAD SURAT ===== --}}
     @if (session('success'))
         @if (session('nomor_surat'))
             Swal.fire({
@@ -823,7 +823,7 @@ document.addEventListener('DOMContentLoaded', function () {
         @endif
     @endif
 
-    {{-- ===== NOTIFIKASI ERROR ===== --}}
+    //{{-- ===== NOTIFIKASI ERROR ===== --}}
     @if ($errors->any())
         Swal.fire({toast:true,position:'top-end',icon:'error',title:"{{ $errors->first() }}",showConfirmButton:false,timer:5000,timerProgressBar:true,
             didOpen:t=>{ t.addEventListener('mouseenter',Swal.stopTimer); t.addEventListener('mouseleave',Swal.resumeTimer); }});
