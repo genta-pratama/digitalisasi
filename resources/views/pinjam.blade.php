@@ -193,16 +193,6 @@
                                     <p class="text-xs text-gray-400 mt-0.5">
                                         {{ $notif->created_at->diffForHumans() }}
                                     </p>
-
-                                    {{-- Download hanya untuk Surat Bebas Lab --}}
-                                    @if($isBebas && isset($notif->data['url_download']))
-                                        <a href="{{ $notif->data['url_download'] }}"
-                                           class="inline-flex items-center gap-1 mt-1.5 text-xs font-semibold
-                                                  text-green-600 hover:text-green-800">
-                                            <i class="fa-solid fa-file-arrow-down text-xs"></i>
-                                            Download Surat Bebas Lab
-                                        </a>
-                                    @endif
                                 </div>
 
                                 {{-- Dot unread --}}
