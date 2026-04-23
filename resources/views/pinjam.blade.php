@@ -91,7 +91,16 @@
             <span class="font-semibold text-sm hidden sm:inline">{{ Auth::user()->name }}</span>
 
             {{-- ===== BELL NOTIFIKASI ===== --}}
-            <div class="relative" x-data="{ open: false }">
+            <div class="relative" x-data="{
+                open: false,
+                modalOpen: false,
+                modalData: null,
+                openDetail(data) {
+                    this.modalData = data;
+                    this.modalOpen = true;
+                    this.open = false;
+                }
+            }">
                 <button @click="open = !open"
                         class="relative p-1.5 text-gray-500 hover:text-indigo-600 transition-colors focus:outline-none">
                     <i class="fa-solid fa-bell text-base"></i>
@@ -128,78 +137,112 @@
                         @endif
                     </div>
 
-                    {{-- ===== LIST NOTIFIKASI (support surat peminjaman & surat bebas lab) ===== --}}
+                    {{-- LIST NOTIFIKASI --}}
                     <div class="max-h-72 overflow-y-auto divide-y divide-gray-50">
                         @forelse(Auth::user()->notifications->take(10) as $notif)
                             @php
-                                $tipe = $notif->data['tipe'] ?? '';
-                                $isBebas = $tipe === 'surat_bebas_lab';
-                                $isDisetujui = $tipe === 'peminjaman_disetujui';
+                                $tipe           = $notif->data['tipe'] ?? '';
+                                $isBebas        = $tipe === 'surat_bebas_lab';
+                                $isDisetujui    = $tipe === 'peminjaman_disetujui';
                                 $isDikonfirmasi = $tipe === 'pengembalian_dikonfirmasi';
-                            @endphp
-                            <div class="flex items-start px-4 py-3 hover:bg-gray-50 transition
-                                        {{ is_null($notif->read_at) ? ($isBebas ? 'bg-green-50' : 'bg-indigo-50') : '' }}">
 
-                                {{-- Icon --}}
-                                <div class="flex-shrink-0 mt-0.5">
-                                    <div class="w-8 h-8 rounded-full flex items-center justify-center
-                                                {{ is_null($notif->read_at) ? ($isBebas ? 'bg-green-100' : ($isDisetujui ? 'bg-blue-100' : ($isDikonfirmasi ? 'bg-purple-100' : 'bg-indigo-100'))) : 'bg-gray-100' }}">
+                                $detailData = null;
+                                if ($isDisetujui || $isDikonfirmasi) {
+                                    $detailData = json_encode([
+                                        'tipe'            => $tipe,
+                                        'nomor_surat'     => $notif->data['nomor_surat']     ?? '-',
+                                        'nama_peminjam'   => $notif->data['nama_peminjam']   ?? '-',
+                                        'nim_peminjam'    => $notif->data['nim_peminjam']    ?? '-',
+                                        'tanggal_pinjam'  => $notif->data['tanggal_pinjam']  ?? null,
+                                        'tanggal_kembali' => $notif->data['tanggal_kembali'] ?? null,
+                                        'items'           => $notif->data['items']           ?? [],
+                                    ]);
+                                }
+                            @endphp
+
+                            <div class="px-4 py-3 hover:bg-gray-50 transition
+                                        {{ is_null($notif->read_at) ? ($isBebas ? 'bg-green-50' : 'bg-indigo-50') : '' }}">
+                                <div class="flex items-start">
+
+                                    {{-- Icon --}}
+                                    <div class="flex-shrink-0 mt-0.5">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center
+                                                    {{ is_null($notif->read_at)
+                                                        ? ($isBebas ? 'bg-green-100'
+                                                            : ($isDisetujui ? 'bg-blue-100'
+                                                                : ($isDikonfirmasi ? 'bg-purple-100' : 'bg-indigo-100')))
+                                                        : 'bg-gray-100' }}">
+                                            @if($isBebas)
+                                                <i class="fa-solid fa-certificate text-xs {{ is_null($notif->read_at) ? 'text-green-600' : 'text-gray-400' }}"></i>
+                                            @elseif($isDisetujui)
+                                                <i class="fa-solid fa-check-circle text-xs {{ is_null($notif->read_at) ? 'text-blue-600' : 'text-gray-400' }}"></i>
+                                            @elseif($isDikonfirmasi)
+                                                <i class="fa-solid fa-rotate-left text-xs {{ is_null($notif->read_at) ? 'text-purple-600' : 'text-gray-400' }}"></i>
+                                            @else
+                                                <i class="fa-solid fa-file-lines text-xs {{ is_null($notif->read_at) ? 'text-indigo-600' : 'text-gray-400' }}"></i>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    {{-- Konten --}}
+                                    <div class="ml-3 flex-1 min-w-0">
+                                        {{-- Badge tipe --}}
                                         @if($isBebas)
-                                            <i class="fa-solid fa-certificate text-xs {{ is_null($notif->read_at) ? 'text-green-600' : 'text-gray-400' }}"></i>
+                                            <span class="inline-block text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full mb-1">
+                                                ✓ Surat Bebas Lab
+                                            </span>
                                         @elseif($isDisetujui)
-                                            <i class="fa-solid fa-check-circle text-xs {{ is_null($notif->read_at) ? 'text-blue-600' : 'text-gray-400' }}"></i>
+                                            <span class="inline-block text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full mb-1">
+                                                ✅ Peminjaman Disetujui
+                                            </span>
                                         @elseif($isDikonfirmasi)
-                                            <i class="fa-solid fa-rotate-left text-xs {{ is_null($notif->read_at) ? 'text-purple-600' : 'text-gray-400' }}"></i>
+                                            <span class="inline-block text-xs font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full mb-1">
+                                                🔄 Pengembalian Dikonfirmasi
+                                            </span>
                                         @else
-                                            <i class="fa-solid fa-file-lines text-xs {{ is_null($notif->read_at) ? 'text-indigo-600' : 'text-gray-400' }}"></i>
+                                            <span class="inline-block text-xs font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full mb-1">
+                                                📄 Surat Peminjaman
+                                            </span>
+                                        @endif
+
+                                        <p class="text-sm font-medium text-gray-800 leading-snug">
+                                            {{ $notif->data['pesan'] ?? 'Notifikasi baru' }}
+                                        </p>
+
+                                        @if(isset($notif->data['nomor_surat']))
+                                            <p class="text-xs text-gray-400 mt-0.5">{{ $notif->data['nomor_surat'] }}</p>
+                                        @endif
+
+                                        @if(isset($notif->data['nama_barang']))
+                                            <p class="text-xs text-gray-500 mt-0.5">
+                                                <i class="fa-solid fa-flask text-xs mr-1"></i>{{ $notif->data['nama_barang'] }}
+                                            </p>
+                                        @endif
+
+                                        <p class="text-xs text-gray-400 mt-0.5">
+                                            {{ $notif->created_at->diffForHumans() }}
+                                        </p>
+
+                                        {{-- TOMBOL LIHAT DETAIL --}}
+                                        @if($isDisetujui || $isDikonfirmasi)
+                                            <button type="button"
+                                                    @click.stop="openDetail({{ $detailData }})"
+                                                    class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition
+                                                           {{ $isDisetujui
+                                                               ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                                               : 'bg-purple-100 text-purple-700 hover:bg-purple-200' }}">
+                                                <i class="fa-solid fa-boxes-stacked text-xs"></i>
+                                                Lihat Detail Barang
+                                            </button>
                                         @endif
                                     </div>
+
+                                    {{-- Dot unread --}}
+                                    @if(is_null($notif->read_at))
+                                        <div class="flex-shrink-0 ml-2 mt-2 w-2 h-2 rounded-full
+                                                    {{ $isBebas ? 'bg-green-500' : 'bg-indigo-500' }}"></div>
+                                    @endif
                                 </div>
-
-                                {{-- Konten --}}
-                                <div class="ml-3 flex-1 min-w-0">
-                                    {{-- Badge tipe --}}
-                                    @if($isBebas)
-                                        <span class="inline-block text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full mb-1">
-                                            ✓ Surat Bebas Lab
-                                        </span>
-                                    @elseif($isDisetujui)
-                                        <span class="inline-block text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full mb-1">
-                                            ✅ Peminjaman Disetujui
-                                        </span>
-                                    @elseif($isDikonfirmasi)
-                                        <span class="inline-block text-xs font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full mb-1">
-                                            🔄 Pengembalian Dikonfirmasi
-                                        </span>
-                                    @else
-                                        <span class="inline-block text-xs font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full mb-1">
-                                            📄 Surat Peminjaman
-                                        </span>
-                                    @endif
-                                    <p class="text-sm font-medium text-gray-800 leading-snug">
-                                        {{ $notif->data['pesan'] ?? 'Notifikasi baru' }}
-                                    </p>
-
-                                    @if(isset($notif->data['nomor_surat']))
-                                        <p class="text-xs text-gray-400 mt-0.5">{{ $notif->data['nomor_surat'] }}</p>
-                                    @endif
-
-                                    @if(isset($notif->data['nama_barang']))
-                                        <p class="text-xs text-gray-500 mt-0.5">
-                                            <i class="fa-solid fa-flask text-xs mr-1"></i>{{ $notif->data['nama_barang'] }}
-                                        </p>
-                                    @endif
-
-                                    <p class="text-xs text-gray-400 mt-0.5">
-                                        {{ $notif->created_at->diffForHumans() }}
-                                    </p>
-                                </div>
-
-                                {{-- Dot unread --}}
-                                @if(is_null($notif->read_at))
-                                    <div class="flex-shrink-0 ml-2 mt-2 w-2 h-2 rounded-full
-                                                {{ $isBebas ? 'bg-green-500' : 'bg-indigo-500' }}"></div>
-                                @endif
                             </div>
                         @empty
                             <div class="px-4 py-8 text-center">
@@ -208,9 +251,165 @@
                             </div>
                         @endforelse
                     </div>
-                    {{-- ===== END LIST NOTIFIKASI ===== --}}
+                    {{-- END LIST NOTIFIKASI --}}
 
                 </div>
+                {{-- END DROPDOWN --}}
+
+                {{-- ===== MODAL DETAIL PEMINJAMAN ===== --}}
+                <div x-show="modalOpen"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     @click.self="modalOpen = false"
+                     class="fixed inset-0 bg-black bg-opacity-50 z-[999] flex items-center justify-center p-4"
+                     style="display:none;">
+
+                    <div x-show="modalOpen"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col">
+
+                        {{-- Modal Header --}}
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 rounded-t-2xl"
+                             :class="modalData?.tipe === 'peminjaman_disetujui' ? 'bg-blue-50' : 'bg-purple-50'">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center"
+                                     :class="modalData?.tipe === 'peminjaman_disetujui' ? 'bg-blue-100' : 'bg-purple-100'">
+                                    <i class="fa-solid text-sm"
+                                       :class="modalData?.tipe === 'peminjaman_disetujui'
+                                           ? 'fa-check-circle text-blue-600'
+                                           : 'fa-rotate-left text-purple-600'"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-sm leading-tight"
+                                        x-text="modalData?.tipe === 'peminjaman_disetujui'
+                                            ? '✅ Detail Peminjaman Disetujui'
+                                            : '🔄 Detail Pengembalian Dikonfirmasi'">
+                                    </h3>
+                                    <p class="text-xs text-gray-500 mt-0.5" x-text="modalData?.nomor_surat"></p>
+                                </div>
+                            </div>
+                            <button @click="modalOpen = false"
+                                    class="text-gray-400 hover:text-gray-700 transition text-2xl leading-none font-light">
+                                &times;
+                            </button>
+                        </div>
+
+                        {{-- Modal Body --}}
+                        <div class="p-5 overflow-y-auto flex-1 space-y-4">
+
+                            {{-- Info Peminjam --}}
+                            <div class="bg-gray-50 rounded-xl p-4 grid grid-cols-2 gap-3">
+                                <div>
+                                    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Nama Peminjam</p>
+                                    <p class="text-sm font-semibold text-gray-800 mt-0.5" x-text="modalData?.nama_peminjam"></p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">NIM</p>
+                                    <p class="text-sm font-semibold text-gray-800 mt-0.5" x-text="modalData?.nim_peminjam"></p>
+                                </div>
+                                <div x-show="modalData?.tanggal_pinjam">
+                                    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Tanggal Pinjam</p>
+                                    <p class="text-sm font-semibold text-gray-800 mt-0.5" x-text="modalData?.tanggal_pinjam"></p>
+                                </div>
+                                <div x-show="modalData?.tanggal_kembali">
+                                    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Tanggal Kembali</p>
+                                    <p class="text-sm font-semibold text-gray-800 mt-0.5" x-text="modalData?.tanggal_kembali"></p>
+                                </div>
+                            </div>
+
+                            {{-- Tabel Barang --}}
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-boxes-stacked text-indigo-500"></i>
+                                    Daftar Barang
+                                    <span class="ml-auto text-xs font-normal text-gray-400"
+                                          x-text="(modalData?.items ?? []).length + ' jenis barang'"></span>
+                                </h4>
+
+                                <div class="rounded-xl border border-gray-200 overflow-hidden">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-gray-100 text-xs text-gray-500 uppercase tracking-wide">
+                                                <th class="text-left px-3 py-2 font-semibold">Barang</th>
+                                                <th class="text-center px-3 py-2 font-semibold">Tipe</th>
+                                                <th class="text-center px-3 py-2 font-semibold">Jumlah</th>
+                                                <template x-if="modalData?.tipe === 'pengembalian_dikonfirmasi'">
+                                                    <th class="text-center px-3 py-2 font-semibold">Kondisi</th>
+                                                </template>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template x-for="(item, index) in (modalData?.items ?? [])" :key="index">
+                                                <tr class="border-t border-gray-100"
+                                                    :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+
+                                                    {{-- Nama --}}
+                                                    <td class="px-3 py-2.5 font-medium text-gray-800 text-xs" x-text="item.nama"></td>
+
+                                                    {{-- Tipe --}}
+                                                    <td class="px-3 py-2.5 text-center">
+                                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full font-medium"
+                                                              :class="{
+                                                                  'bg-blue-100 text-blue-700'   : item.tipe === 'Alat',
+                                                                  'bg-amber-100 text-amber-700' : item.tipe === 'BahanPadat',
+                                                                  'bg-cyan-100 text-cyan-700'   : item.tipe === 'BahanCairanLama'
+                                                              }"
+                                                              x-text="item.tipe === 'Alat' ? 'Alat' : (item.tipe === 'BahanPadat' ? 'Bahan Padat' : 'Bahan Cair')">
+                                                        </span>
+                                                    </td>
+
+                                                    {{-- Jumlah --}}
+                                                    <td class="px-3 py-2.5 text-center text-gray-700 text-xs">
+                                                        <span x-text="item.jumlah + ' ' + item.unit"></span>
+                                                    </td>
+
+                                                    {{-- Kondisi (hanya pengembalian) --}}
+                                                    <template x-if="modalData?.tipe === 'pengembalian_dikonfirmasi'">
+                                                        <td class="px-3 py-2.5 text-center">
+                                                            <span class="inline-block text-xs px-2 py-0.5 rounded-full font-medium"
+                                                                  :class="{
+                                                                      'bg-green-100 text-green-700' : item.kondisi === 'baik',
+                                                                      'bg-red-100 text-red-700'     : item.kondisi === 'rusak'
+                                                                  }"
+                                                                  x-text="item.kondisi === 'baik' ? 'Baik' : 'Rusak'">
+                                                            </span>
+                                                        </td>
+                                                    </template>
+
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                        {{-- END Modal Body --}}
+
+                        {{-- Modal Footer --}}
+                        <div class="px-5 py-3 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+                            <button @click="modalOpen = false"
+                                    class="w-full py-2 rounded-lg text-sm font-semibold text-white transition"
+                                    :class="modalData?.tipe === 'peminjaman_disetujui'
+                                        ? 'bg-blue-600 hover:bg-blue-700'
+                                        : 'bg-purple-600 hover:bg-purple-700'">
+                                Tutup
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                {{-- ===== END MODAL DETAIL ===== --}}
+
             </div>
             {{-- ===== END BELL ===== --}}
 
@@ -600,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function () {
     renderList();
     if ("{{ $errors->any() }}") toggleModal(true);
 
-    //{{-- ===== NOTIFIKASI SUKSES + TOMBOL DOWNLOAD SURAT ===== --}}
+    {{-- ===== NOTIFIKASI SUKSES + TOMBOL DOWNLOAD SURAT ===== --}}
     @if (session('success'))
         @if (session('nomor_surat'))
             Swal.fire({
@@ -624,7 +823,7 @@ document.addEventListener('DOMContentLoaded', function () {
         @endif
     @endif
 
-    //{{-- ===== NOTIFIKASI ERROR ===== --}}
+    {{-- ===== NOTIFIKASI ERROR ===== --}}
     @if ($errors->any())
         Swal.fire({toast:true,position:'top-end',icon:'error',title:"{{ $errors->first() }}",showConfirmButton:false,timer:5000,timerProgressBar:true,
             didOpen:t=>{ t.addEventListener('mouseenter',Swal.stopTimer); t.addEventListener('mouseleave',Swal.resumeTimer); }});
@@ -659,4 +858,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     </li>
                     <li class="flex items-center">
                         <i class="fa-solid fa-phone text-indigo-200 mr-3 flex-shrink-0"></i>
-                        <a class="text-indigo-100 hover:text-white transition
+                        <a class="text-indigo-100 hover:text-white transition-colors">+62 651 7551 234</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-indigo-400 py-6 text-center">
+            <p class="text-indigo-200 text-sm">© {{ date('Y') }} Laboratorium Terpadu FST UIN Ar-Raniry. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
