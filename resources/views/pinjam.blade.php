@@ -858,7 +858,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </li>
                     <li class="flex items-center">
                         <i class="fa-solid fa-phone text-indigo-200 mr-3 flex-shrink-0"></i>
-                        <a class="text-indigo-100 hover:text-white transition-colors">+62 651 7551 234</a>
+                        <a class="text-indigo-100 hover:text-white transition-colors"></a>
                     </li>
                 </ul>
             </div>
