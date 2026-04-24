@@ -61,7 +61,7 @@ class SuratBebasLabNotification extends Notification
             'nama_barang'   => $this->isGabungan
                                     ? 'Semua barang (' . $this->peminjaman->nomor_surat . ')'
                                     : ($this->peminjaman->peminjamable?->nama ?? '-'),
-            'pesan'         => 'Surat Bebas Lab Anda telah diterbitkan. Silakan download sekarang.',
+            'pesan'         => 'Surat Bebas Lab Anda telah diterbitkan. Hubungi admin untuk mengambil suratnya.',
             'url_download'  => $downloadUrl,
             'tipe'          => 'surat_bebas_lab',
         ];
