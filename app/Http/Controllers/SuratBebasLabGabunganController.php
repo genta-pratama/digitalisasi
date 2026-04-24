@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
@@ -17,7 +16,6 @@ class SuratBebasLabGabunganController extends Controller
      */
     public function terbitkanDanDownload(string $nim)
     {
-        // Ambil semua peminjaman milik mahasiswa ini yang sudah dikembalikan
         $peminjamans = Peminjaman::with('peminjamable')
             ->where('nim_peminjam', $nim)
             ->where('status', 'Dikembalikan')
@@ -27,7 +25,6 @@ class SuratBebasLabGabunganController extends Controller
             abort(404, 'Tidak ada peminjaman yang sudah dikembalikan untuk NIM ini.');
         }
 
-        // Tandai semua yang belum diterbitkan
         $now = now();
         foreach ($peminjamans as $p) {
             if (!$p->surat_bebas_lab_diterbitkan) {
@@ -38,14 +35,13 @@ class SuratBebasLabGabunganController extends Controller
             }
         }
 
-        // Kirim notifikasi ke mahasiswa (cukup 1x)
+        // Kirim notifikasi ke mahasiswa menggunakan user_id
         $first = $peminjamans->first();
-        $user  = User::where('name', $first->nama_peminjam)->first();
+        $user  = User::find($first->user_id);
         if ($user) {
             $user->notify(new SuratBebasLabNotification($first));
         }
 
-        // Generate PDF gabungan
         return $this->generatePdf($peminjamans, $now);
     }
 
@@ -74,10 +70,10 @@ class SuratBebasLabGabunganController extends Controller
         $first = $peminjamans->first();
 
         $pdf = Pdf::loadView('pdf.surat_bebas_lab_gabungan', [
-            'peminjamans'   => $peminjamans,
-            'nama_peminjam' => $first->nama_peminjam,
-            'nim_peminjam'  => $first->nim_peminjam,
-            'tanggal_terbit'=> $tanggalTerbit,
+            'peminjamans'    => $peminjamans,
+            'nama_peminjam'  => $first->nama_peminjam,
+            'nim_peminjam'   => $first->nim_peminjam,
+            'tanggal_terbit' => $tanggalTerbit,
         ])->setPaper('a4', 'portrait');
 
         $namaFile = 'Surat_Bebas_Lab_'

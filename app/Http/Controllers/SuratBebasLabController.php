@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Models\User;
 use App\Notifications\SuratBebasLabNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -38,7 +38,8 @@ class SuratBebasLabController extends Controller
                 'surat_bebas_lab_diterbitkan_at' => now(),
             ]);
 
-            $user = \App\Models\User::where('name', $peminjaman->nama_peminjam)->first();
+            // Kirim notifikasi menggunakan user_id
+            $user = User::find($peminjaman->user_id);
             if ($user) {
                 $user->notify(new SuratBebasLabNotification($peminjaman));
             }
