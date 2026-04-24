@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
@@ -11,21 +12,32 @@ class SuratBebasLabGabunganController extends Controller
 {
     /**
      * Terbitkan surat bebas lab GABUNGAN untuk semua peminjaman
-     * satu mahasiswa yang berstatus Dikembalikan.
-     * Route: GET /surat-bebas-lab-gabungan/{nim}/terbitkan
+     * dalam satu nomor_surat yang berstatus Dikembalikan.
+     *
+     * Route: GET /surat-bebas-lab-gabungan/{nim}/terbitkan?nomor_surat=xxx
      */
     public function terbitkanDanDownload(string $nim)
     {
-        $peminjamans = Peminjaman::with('peminjamable')
+        // FIX: filter by nomor_surat agar tidak tercampur dengan
+        // surat lain milik mahasiswa yang sama
+        $nomorSurat = request()->query('nomor_surat');
+
+        $query = Peminjaman::with('peminjamable')
             ->where('nim_peminjam', $nim)
-            ->where('status', 'Dikembalikan')
-            ->get();
+            ->where('status', 'Dikembalikan');
+
+        if ($nomorSurat) {
+            $query->where('nomor_surat', $nomorSurat);
+        }
+
+        $peminjamans = $query->get();
 
         if ($peminjamans->isEmpty()) {
             abort(404, 'Tidak ada peminjaman yang sudah dikembalikan untuk NIM ini.');
         }
 
         $now = now();
+
         foreach ($peminjamans as $p) {
             if (!$p->surat_bebas_lab_diterbitkan) {
                 $p->update([
@@ -35,33 +47,46 @@ class SuratBebasLabGabunganController extends Controller
             }
         }
 
-        // Kirim notifikasi ke mahasiswa menggunakan user_id
+        // FIX: cari user by user_id (bukan nama), dan kirim notifikasi
+        // dengan isGabungan=true agar link download di email mengarah
+        // ke surat gabungan, bukan ke satu barang saja
         $first = $peminjamans->first();
         $user  = User::find($first->user_id);
+
         if ($user) {
-            $user->notify(new SuratBebasLabNotification($first));
+            $user->notify(new SuratBebasLabNotification($first, isGabungan: true));
         }
 
         return $this->generatePdf($peminjamans, $now);
     }
 
     /**
-     * Download ulang surat bebas lab gabungan
-     * Route: GET /surat-bebas-lab-gabungan/{nim}
+     * Download ulang surat bebas lab gabungan.
+     *
+     * Route: GET /surat-bebas-lab-gabungan/{nim}?nomor_surat=xxx
      */
     public function download(string $nim)
     {
-        $peminjamans = Peminjaman::with('peminjamable')
+        // FIX: filter by nomor_surat agar tidak tercampur
+        $nomorSurat = request()->query('nomor_surat');
+
+        $query = Peminjaman::with('peminjamable')
             ->where('nim_peminjam', $nim)
             ->where('status', 'Dikembalikan')
-            ->where('surat_bebas_lab_diterbitkan', true)
-            ->get();
+            ->where('surat_bebas_lab_diterbitkan', true);
+
+        if ($nomorSurat) {
+            $query->where('nomor_surat', $nomorSurat);
+        }
+
+        $peminjamans = $query->get();
 
         if ($peminjamans->isEmpty()) {
             abort(404, 'Surat Bebas Lab gabungan belum diterbitkan untuk NIM ini.');
         }
 
         $tanggalTerbit = $peminjamans->first()->surat_bebas_lab_diterbitkan_at;
+
         return $this->generatePdf($peminjamans, $tanggalTerbit);
     }
 
