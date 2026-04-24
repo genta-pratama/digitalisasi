@@ -5,13 +5,26 @@ use App\Models\Peminjaman;
 use App\Models\User;
 use App\Notifications\PeminjamanDisetujuiNotification;
 use App\Notifications\PengembalianDikonfirmasiNotification;
+use App\Notifications\AlatRusakNotification;
 use Illuminate\Http\Request;
 
 class PeminjamanActionController extends Controller
 {
     /**
+     * Cek apakah notifikasi dengan tipe dan nomor surat tertentu sudah pernah dikirim
+     */
+    private function sudahAdaNotif(User $user, string $tipe, string $nomorSurat): bool
+    {
+        return $user->notifications()
+            ->get()
+            ->contains(fn($n) =>
+                ($n->data['tipe'] ?? '') === $tipe &&
+                ($n->data['nomor_surat'] ?? '') === $nomorSurat
+            );
+    }
+
+    /**
      * Setujui 1 item
-     * GET /admin/peminjaman/{id}/setujui-item
      */
     public function setujuiItem(int $id)
     {
@@ -21,19 +34,11 @@ class PeminjamanActionController extends Controller
         }
         $item->update(['status' => 'Disetujui', 'tanggal_pinjam' => now()]);
 
-        // Kirim notifikasi ke user — hanya sekali per nomor surat
         if ($item->user_id) {
             $user = User::find($item->user_id);
-            if ($user) {
-                $sudahAdaNotif = $user->notifications()
-                    ->where('data->tipe', 'peminjaman_disetujui')
-                    ->where('data->nomor_surat', $item->nomor_surat)
-                    ->exists();
-
-                if (!$sudahAdaNotif) {
-                    $jumlah = Peminjaman::where('nomor_surat', $item->nomor_surat)->count();
-                    $user->notify(new PeminjamanDisetujuiNotification($item->nomor_surat, $jumlah));
-                }
+            if ($user && !$this->sudahAdaNotif($user, 'peminjaman_disetujui', $item->nomor_surat)) {
+                $jumlah = Peminjaman::where('nomor_surat', $item->nomor_surat)->count();
+                $user->notify(new PeminjamanDisetujuiNotification($item->nomor_surat, $jumlah));
             }
         }
 
@@ -42,7 +47,6 @@ class PeminjamanActionController extends Controller
 
     /**
      * Konfirmasi pengembalian 1 item
-     * GET /admin/peminjaman/{id}/kembalikan-item/{kondisi}
      */
     public function kembalikanItem(int $id, string $kondisi)
     {
@@ -67,18 +71,16 @@ class PeminjamanActionController extends Controller
             'kondisi_pengembalian' => $isAlat ? $kondisi : 'baik',
         ]);
 
-        // Kirim notifikasi ke user — hanya sekali per nomor surat
         if ($item->user_id) {
             $user = User::find($item->user_id);
             if ($user) {
-                $sudahAdaNotif = $user->notifications()
-                    ->where('data->tipe', 'pengembalian_dikonfirmasi')
-                    ->where('data->nomor_surat', $item->nomor_surat)
-                    ->exists();
-
-                if (!$sudahAdaNotif) {
-                    $jumlah = Peminjaman::where('nomor_surat', $item->nomor_surat)->count();
-                    $user->notify(new PengembalianDikonfirmasiNotification($item->nomor_surat, $jumlah));
+                if ($isAlat && $kondisi === 'rusak') {
+                    $user->notify(new AlatRusakNotification($item->nomor_surat, $barang?->nama ?? '-'));
+                } else {
+                    if (!$this->sudahAdaNotif($user, 'pengembalian_dikonfirmasi', $item->nomor_surat)) {
+                        $jumlah = Peminjaman::where('nomor_surat', $item->nomor_surat)->count();
+                        $user->notify(new PengembalianDikonfirmasiNotification($item->nomor_surat, $jumlah));
+                    }
                 }
             }
         }
@@ -91,7 +93,6 @@ class PeminjamanActionController extends Controller
 
     /**
      * Konfirmasi semua pengembalian dalam 1 surat sekaligus
-     * GET /admin/peminjaman/{nomorSurat}/kembalikan-semua?kondisi[id]=baik/rusak
      */
     public function kembalikanSemua(Request $request, string $nomorSurat)
     {
@@ -103,8 +104,9 @@ class PeminjamanActionController extends Controller
             ->where('status', 'Disetujui')
             ->get();
 
-        $adaRusak  = false;
-        $firstItem = $items->first();
+        $adaRusak      = false;
+        $firstItem     = $items->first();
+        $alatRusakList = [];
 
         foreach ($items as $item) {
             $isAlat  = $item->peminjamable_type === 'App\\Models\\Alat';
@@ -128,20 +130,21 @@ class PeminjamanActionController extends Controller
 
             if ($isAlat && $kondisi === 'rusak') {
                 $adaRusak = true;
+                $alatRusakList[] = $barang?->nama ?? '-';
             }
         }
 
-        // Kirim notifikasi ke user — hanya sekali per nomor surat
         if ($firstItem && $firstItem->user_id) {
             $user = User::find($firstItem->user_id);
             if ($user) {
-                $sudahAdaNotif = $user->notifications()
-                    ->where('data->tipe', 'pengembalian_dikonfirmasi')
-                    ->where('data->nomor_surat', $nomorSurat)
-                    ->exists();
-
-                if (!$sudahAdaNotif) {
-                    $user->notify(new PengembalianDikonfirmasiNotification($nomorSurat, $items->count()));
+                if ($adaRusak) {
+                    foreach ($alatRusakList as $namaAlat) {
+                        $user->notify(new AlatRusakNotification($nomorSurat, $namaAlat));
+                    }
+                } else {
+                    if (!$this->sudahAdaNotif($user, 'pengembalian_dikonfirmasi', $nomorSurat)) {
+                        $user->notify(new PengembalianDikonfirmasiNotification($nomorSurat, $items->count()));
+                    }
                 }
             }
         }
@@ -154,7 +157,6 @@ class PeminjamanActionController extends Controller
 
     /**
      * Tandai alat rusak sudah diganti/diperbaiki → kondisi jadi baik
-     * GET /admin/peminjaman/{id}/tandai-baik
      */
     public function tandaiBaik(int $id)
     {
@@ -177,7 +179,6 @@ class PeminjamanActionController extends Controller
 
     /**
      * Setujui semua item dalam 1 nomor surat
-     * GET /admin/peminjaman/{nomorSurat}/setujui-semua
      */
     public function setujuiSemua(string $nomorSurat)
     {
@@ -191,19 +192,11 @@ class PeminjamanActionController extends Controller
             $item->update(['status' => 'Disetujui', 'tanggal_pinjam' => now()]);
         }
 
-        // Kirim notifikasi ke user — hanya sekali per nomor surat
         $firstItem = $items->first();
         if ($firstItem && $firstItem->user_id) {
             $user = User::find($firstItem->user_id);
-            if ($user) {
-                $sudahAdaNotif = $user->notifications()
-                    ->where('data->tipe', 'peminjaman_disetujui')
-                    ->where('data->nomor_surat', $nomorSurat)
-                    ->exists();
-
-                if (!$sudahAdaNotif) {
-                    $user->notify(new PeminjamanDisetujuiNotification($nomorSurat, $items->count()));
-                }
+            if ($user && !$this->sudahAdaNotif($user, 'peminjaman_disetujui', $nomorSurat)) {
+                $user->notify(new PeminjamanDisetujuiNotification($nomorSurat, $items->count()));
             }
         }
 
