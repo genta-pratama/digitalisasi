@@ -14,32 +14,87 @@
 
         * { box-sizing: border-box; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            background: linear-gradient(180deg,
-                #1565c0 0%,
-                #ffffff 20%,
-                #ffffff 80%,
-                #1565c0 100%
-            );
-            background-attachment: fixed;
-        }
-
         :root {
             --bg-secondary: #FFFFFF;
-            --accent-primary: #6366F1;
-            --accent-hover: #4F46E5;
+            --accent-primary: #4F46E5;
+            --accent-hover: #4338CA;
             --text-primary: #1F2937;
             --text-secondary: #6B7280;
             --border-color: #E5E7EB;
         }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: #eef2ff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Blob animasi latar */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.55;
+        }
+        .blob-1 {
+            width: 600px; height: 600px;
+            top: -150px; left: -150px;
+            background: radial-gradient(circle, #818cf8, #6366f1);
+            animation: floatBlob1 14s ease-in-out infinite;
+        }
+        .blob-2 {
+            width: 500px; height: 500px;
+            bottom: -120px; right: -120px;
+            background: radial-gradient(circle, #60a5fa, #3b82f6);
+            animation: floatBlob2 17s ease-in-out infinite;
+        }
+        .blob-3 {
+            width: 380px; height: 380px;
+            top: 40%; left: 55%;
+            background: radial-gradient(circle, #a78bfa, #8b5cf6);
+            animation: floatBlob3 20s ease-in-out infinite;
+            opacity: 0.30;
+        }
+
+        @keyframes floatBlob1 {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33%      { transform: translate(40px, 60px) scale(1.06); }
+            66%      { transform: translate(-20px, 30px) scale(0.97); }
+        }
+        @keyframes floatBlob2 {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33%      { transform: translate(-50px,-40px) scale(1.05); }
+            66%      { transform: translate(30px,-60px) scale(0.96); }
+        }
+        @keyframes floatBlob3 {
+            0%,100% { transform: translate(0,0) scale(1); }
+            50%      { transform: translate(-30px, 40px) scale(1.08); }
+        }
+
+        /* Card glassmorphism */
+        .item-card {
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 4px 20px rgba(99,102,241,0.10), 0 1px 4px rgba(0,0,0,0.05);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .item-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(99,102,241,0.22), 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        /* Formula kimia */
         .formula-display {
-            background-color: #F3F4F6;
+            background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%);
             color: var(--text-primary);
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.025em;
             display: flex;
             align-items: center;
@@ -50,45 +105,65 @@
             padding: 0.5rem;
         }
 
+        /* Modal animasi */
         .modal-enter { animation: fadeIn 0.3s ease-out; }
         .modal-leave { animation: fadeOut 0.3s ease-in; }
         @keyframes fadeIn  { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
         @keyframes fadeOut { from { opacity:1; transform:scale(1); }   to { opacity:0; transform:scale(0.95); } }
 
+        /* Sticky search */
         .search-bar-container.is-sticky .search-bar-inner {
-            background-color: rgba(255,255,255,0.92);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 2px 4px -2px rgb(0 0 0/0.08);
-            border-bottom: 1px solid var(--border-color);
+            background: rgba(238,242,255,0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 2px 12px rgba(99,102,241,0.12);
+            border-bottom: 1px solid rgba(99,102,241,0.10);
         }
 
-        #wave-bottom {
-            position: fixed; bottom: 0; left: 0;
-            width: 100%; height: 32%;
-            z-index: -1; pointer-events: none; overflow: hidden;
+        /* Search input */
+        #searchInput {
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(8px);
         }
-        #wave-bottom svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
 
-        #wave-top {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 32%;
-            z-index: -1; pointer-events: none; overflow: hidden;
-            transform: scaleY(-1);
+        /* Section heading gradien */
+        .catalog-section h2 {
+            background: linear-gradient(90deg, #4F46E5 0%, #7C3AED 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        #wave-top svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
+
+        /* Navbar glassmorphism */
+        .navbar-glass {
+            background: rgba(255,255,255,0.80);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 4px 20px rgba(99,102,241,0.12);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #4338CA 0%, #5B21B6 100%);
+        }
     </style>
 </head>
 <body class="text-[var(--text-primary)]">
+
+{{-- Blob background --}}
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
 
 <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl">
 
     {{-- NAVBAR TOP RIGHT --}}
     <div class="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-50">
         @auth
-        <div class="flex items-center gap-2 bg-white pl-2 pr-3 py-2 rounded-full shadow-md">
-            <img src="{{ Auth::user()->avatar }}" alt="Foto Profil {{ Auth::user()->name }}" class="w-8 h-8 rounded-full border-2 border-gray-200">
-            <span class="font-semibold text-sm hidden sm:inline">{{ Auth::user()->name }}</span>
+        <div class="navbar-glass flex items-center gap-2 pl-2 pr-3 py-2 rounded-full">
+            <img src="{{ Auth::user()->avatar }}" alt="Foto Profil {{ Auth::user()->name }}" class="w-8 h-8 rounded-full border-2 border-indigo-200">
+            <span class="font-semibold text-sm hidden sm:inline text-gray-700">{{ Auth::user()->name }}</span>
 
             {{-- ===== BELL NOTIFIKASI ===== --}}
             <div class="relative" x-data="{
@@ -257,6 +332,7 @@
                 {{-- END DROPDOWN --}}
 
                 {{-- ===== MODAL DETAIL PEMINJAMAN ===== --}}
+                <template x-teleport="body">
                 <div x-show="modalOpen"
                      x-transition:enter="transition ease-out duration-200"
                      x-transition:enter-start="opacity-0"
@@ -265,7 +341,7 @@
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
                      @click.self="modalOpen = false"
-                     class="fixed inset-0 bg-black bg-opacity-50 z-[999] flex items-center justify-center p-4"
+                     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
                      style="display:none;">
 
                     <div x-show="modalOpen"
@@ -275,7 +351,7 @@
                          x-transition:leave="transition ease-in duration-150"
                          x-transition:leave-start="opacity-100 scale-100"
                          x-transition:leave-end="opacity-0 scale-95"
-                         class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col">
+                         class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
 
                         {{-- Modal Header --}}
                         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 rounded-t-2xl"
@@ -351,11 +427,7 @@
                                             <template x-for="(item, index) in (modalData?.items ?? [])" :key="index">
                                                 <tr class="border-t border-gray-100"
                                                     :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
-
-                                                    {{-- Nama --}}
                                                     <td class="px-3 py-2.5 font-medium text-gray-800 text-xs" x-text="item.nama"></td>
-
-                                                    {{-- Tipe --}}
                                                     <td class="px-3 py-2.5 text-center">
                                                         <span class="inline-block text-xs px-2 py-0.5 rounded-full font-medium"
                                                               :class="{
@@ -366,13 +438,9 @@
                                                               x-text="item.tipe === 'Alat' ? 'Alat' : (item.tipe === 'BahanPadat' ? 'Bahan Padat' : 'Bahan Cair')">
                                                         </span>
                                                     </td>
-
-                                                    {{-- Jumlah --}}
                                                     <td class="px-3 py-2.5 text-center text-gray-700 text-xs">
                                                         <span x-text="item.jumlah + ' ' + item.unit"></span>
                                                     </td>
-
-                                                    {{-- Kondisi (hanya pengembalian) --}}
                                                     <template x-if="modalData?.tipe === 'pengembalian_dikonfirmasi'">
                                                         <td class="px-3 py-2.5 text-center">
                                                             <span class="inline-block text-xs px-2 py-0.5 rounded-full font-medium"
@@ -384,7 +452,6 @@
                                                             </span>
                                                         </td>
                                                     </template>
-
                                                 </tr>
                                             </template>
                                         </tbody>
@@ -408,13 +475,14 @@
 
                     </div>
                 </div>
+                </template>
                 {{-- ===== END MODAL DETAIL ===== --}}
 
             </div>
             {{-- ===== END BELL ===== --}}
 
             <a href="{{ route('logout.get') }}"
-               class="text-gray-400 hover:text-red-600 transition-colors"
+               class="text-gray-400 hover:text-red-500 transition-colors"
                title="Logout"
                onclick="return confirm('Yakin ingin keluar?')">
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -424,8 +492,8 @@
     </div>
 
     <header class="mb-8 text-center pt-4 md:pt-8">
-        <h1 class="text-3xl sm:text-4xl font-bold text-[var(--text-primary)]">Katalog Barang Laboratorium</h1>
-        <p class="text-base sm:text-lg text-black mt-2">Pilih barang yang ingin Anda pinjam.</p>
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Katalog Barang Laboratorium</h1>
+        <p class="text-base sm:text-lg text-gray-600 mt-2">Pilih barang yang ingin Anda pinjam.</p>
     </header>
 
     <div id="search-container" class="search-bar-container sticky top-0 z-30 mb-8 transition-all duration-300 ease-in-out">
@@ -435,34 +503,34 @@
                     <i class="fa-solid fa-search"></i>
                 </span>
                 <input type="text" id="searchInput" placeholder="Cari nama alat atau bahan..."
-                       class="w-full py-3 pl-12 pr-4 border border-gray-300 rounded-full shadow-sm bg-white focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] transition">
+                       class="w-full py-3 pl-12 pr-4 border border-white/60 rounded-full shadow-md bg-white/90 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition">
             </div>
         </div>
     </div>
 
     <div id="items-container">
         <section id="alat-lab" class="catalog-section">
-            <h2 class="text-2xl font-bold text-[var(--text-primary)] border-b-2 border-[var(--border-color)] pb-3 mb-6">Alat Laboratorium</h2>
+            <h2 class="text-2xl font-bold border-b-2 border-indigo-100 pb-3 mb-6">Alat Laboratorium</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 @foreach ($alats as $item)
-                <div class="item-card relative bg-[var(--bg-secondary)] rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105 duration-300 flex flex-col">
+                <div class="item-card relative rounded-xl overflow-hidden flex flex-col">
                     @if($item->stok <= 0)
                     <div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 p-2">
-                        <span class="text-sm md:text-base font-bold text-red-600 border-2 border-red-500 bg-white px-3 py-1 rounded-md">Stok Habis</span>
+                        <span class="text-sm md:text-base font-bold text-red-600 border-2 border-red-400 bg-white px-3 py-1 rounded-md">Stok Habis</span>
                     </div>
                     @endif
-                    <div class="h-36 md:h-48 bg-gray-100 flex items-center justify-center">
+                    <div class="h-36 md:h-48 bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
                         @if(!empty($item->images))
                             <img src="{{ asset('storage/' . $item->images[0]) }}" alt="{{ $item->nama }}" class="w-full h-full object-cover">
                         @else
-                            <i class="fa-solid fa-flask text-4xl text-gray-400"></i>
+                            <i class="fa-solid fa-flask text-4xl text-indigo-300"></i>
                         @endif
                     </div>
                     <div class="p-3 flex flex-col flex-grow">
-                        <h3 class="font-semibold text-sm sm:text-base truncate item-name">{{ $item->nama }}</h3>
-                        <p class="text-xs text-[var(--text-secondary)]">Stok: <span class="font-medium text-gray-800">{{ $item->stok }}</span> unit</p>
-                        <p class="text-xs text-[var(--text-secondary)] mb-2">Kondisi: <span class="font-medium text-gray-800">{{ $item->kondisi ?? 'N/A' }}</span></p>
-                        <button class="add-to-cart-btn mt-auto w-full bg-[var(--accent-primary)] text-white py-2 px-3 rounded-md font-semibold text-sm hover:bg-[var(--accent-hover)] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        <h3 class="font-semibold text-sm sm:text-base truncate item-name text-gray-800">{{ $item->nama }}</h3>
+                        <p class="text-xs text-gray-500">Stok: <span class="font-medium text-gray-700">{{ $item->stok }}</span> unit</p>
+                        <p class="text-xs text-gray-500 mb-2">Kondisi: <span class="font-medium text-gray-700">{{ $item->kondisi ?? 'N/A' }}</span></p>
+                        <button class="add-to-cart-btn mt-auto w-full bg-indigo-600 text-white py-2 px-3 rounded-lg font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                             data-id="Alat-{{ $item->id }}" data-nama="{{ $item->nama }}" data-stok="{{ $item->stok }}" data-unit="unit" data-tipe="Alat"
                             @if($item->stok <= 0) disabled @endif>
                             <i class="fa-solid fa-plus mr-1"></i> Tambah
@@ -472,35 +540,35 @@
                 @endforeach
             </div>
             <div class="text-center mt-8 show-more-container" style="display:none;">
-                <button class="show-more-btn inline-flex items-center justify-center rounded-full bg-indigo-100 px-6 py-2 font-semibold text-indigo-700 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-indigo-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <button class="show-more-btn inline-flex items-center justify-center rounded-full bg-indigo-100 px-6 py-2 font-semibold text-indigo-700 transition-all hover:-translate-y-0.5 hover:bg-indigo-200 hover:shadow-md">
                     <span>Lihat Semua</span><i class="fa-solid fa-angles-down ml-2"></i>
                 </button>
             </div>
         </section>
 
         <section id="bahan-padat" class="catalog-section mt-10 md:mt-12">
-            <h2 class="text-2xl font-bold text-[var(--text-primary)] border-b-2 border-[var(--border-color)] pb-3 mb-6">Bahan Padat</h2>
+            <h2 class="text-2xl font-bold border-b-2 border-indigo-100 pb-3 mb-6">Bahan Padat</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 @foreach ($bahan_padats as $item)
-                <div class="item-card relative bg-[var(--bg-secondary)] rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105 duration-300 flex flex-col">
+                <div class="item-card relative rounded-xl overflow-hidden flex flex-col">
                     @if($item->sisa_bahan <= 0)
                     <div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 p-2">
-                        <span class="text-sm md:text-base font-bold text-red-600 border-2 border-red-500 bg-white px-3 py-1 rounded-md">Habis</span>
+                        <span class="text-sm md:text-base font-bold text-red-600 border-2 border-red-400 bg-white px-3 py-1 rounded-md">Habis</span>
                     </div>
                     @endif
                     <div class="h-36 md:h-48 p-2 md:p-4">
                         <div class="formula-display text-2xl md:text-4xl">
                             @if(!empty($item->rumus_kimia)) {{ $item->rumus_kimia }}
-                            @else <i class="fa-solid fa-cubes text-4xl text-gray-400"></i>
+                            @else <i class="fa-solid fa-cubes text-4xl text-purple-300"></i>
                             @endif
                         </div>
                     </div>
                     <div class="p-3 flex flex-col flex-grow">
-                        <h3 class="font-semibold text-sm sm:text-base truncate item-name">{{ $item->nama }}</h3>
-                        <p class="text-xs text-[var(--text-secondary)]">Sisa: <span class="font-medium text-gray-800">{{ $item->sisa_bahan }}</span> {{ $item->unit }}</p>
-                        <p class="text-xs text-[var(--text-secondary)]">Letak: <span class="font-medium text-gray-800">{{ $item->letak }}</span></p>
-                        <p class="text-xs text-[var(--text-secondary)] mb-2">Kedaluwarsa: <span class="font-medium text-gray-800">{{ $item->expired ? \Carbon\Carbon::parse($item->expired)->format('d M Y') : 'N/A' }}</span></p>
-                        <button class="add-to-cart-btn mt-auto w-full bg-[var(--accent-primary)] text-white py-2 px-3 rounded-md font-semibold text-sm hover:bg-[var(--accent-hover)] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        <h3 class="font-semibold text-sm sm:text-base truncate item-name text-gray-800">{{ $item->nama }}</h3>
+                        <p class="text-xs text-gray-500">Sisa: <span class="font-medium text-gray-700">{{ $item->sisa_bahan }}</span> {{ $item->unit }}</p>
+                        <p class="text-xs text-gray-500">Letak: <span class="font-medium text-gray-700">{{ $item->letak }}</span></p>
+                        <p class="text-xs text-gray-500 mb-2">Kedaluwarsa: <span class="font-medium text-gray-700">{{ $item->expired ? \Carbon\Carbon::parse($item->expired)->format('d M Y') : 'N/A' }}</span></p>
+                        <button class="add-to-cart-btn mt-auto w-full bg-indigo-600 text-white py-2 px-3 rounded-lg font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                             data-id="BahanPadat-{{ $item->id }}" data-nama="{{ $item->nama }}" data-stok="{{ $item->sisa_bahan }}" data-unit="{{ $item->unit }}" data-tipe="BahanPadat"
                             @if($item->sisa_bahan <= 0) disabled @endif>
                             <i class="fa-solid fa-plus mr-1"></i> Tambah
@@ -510,33 +578,33 @@
                 @endforeach
             </div>
             <div class="text-center mt-8 show-more-container" style="display:none;">
-                <button class="show-more-btn inline-flex items-center justify-center rounded-full bg-indigo-100 px-6 py-2 font-semibold text-indigo-700 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-indigo-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <button class="show-more-btn inline-flex items-center justify-center rounded-full bg-indigo-100 px-6 py-2 font-semibold text-indigo-700 transition-all hover:-translate-y-0.5 hover:bg-indigo-200 hover:shadow-md">
                     <span>Lihat Semua</span><i class="fa-solid fa-angles-down ml-2"></i>
                 </button>
             </div>
         </section>
 
         <section id="bahan-cair" class="catalog-section mt-10 md:mt-12">
-            <h2 class="text-2xl font-bold text-[var(--text-primary)] border-b-2 border-[var(--border-color)] pb-3 mb-6">Bahan Cair</h2>
+            <h2 class="text-2xl font-bold border-b-2 border-indigo-100 pb-3 mb-6">Bahan Cair</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 @foreach ($bahan_cairan_lamas as $item)
-                <div class="item-card relative bg-[var(--bg-secondary)] rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105 duration-300 flex flex-col">
+                <div class="item-card relative rounded-xl overflow-hidden flex flex-col">
                     @if($item->sisa_bahan <= 0)
                     <div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 p-2">
-                        <span class="text-sm md:text-base font-bold text-red-600 border-2 border-red-500 bg-white px-3 py-1 rounded-md">Habis</span>
+                        <span class="text-sm md:text-base font-bold text-red-600 border-2 border-red-400 bg-white px-3 py-1 rounded-md">Habis</span>
                     </div>
                     @endif
                     <div class="h-36 md:h-48 p-2 md:p-4">
                         <div class="formula-display text-2xl md:text-4xl">
-                            {!! !empty($item->rumus_kimia) ? $item->rumus_kimia : '<i class="fa-solid fa-vial text-4xl text-gray-400"></i>' !!}
+                            {!! !empty($item->rumus_kimia) ? $item->rumus_kimia : '<i class="fa-solid fa-vial text-4xl text-blue-300"></i>' !!}
                         </div>
                     </div>
                     <div class="p-3 flex flex-col flex-grow">
-                        <h3 class="font-semibold text-sm sm:text-base truncate item-name">{{ $item->nama }}</h3>
-                        <p class="text-xs text-[var(--text-secondary)]">Sisa: <span class="font-medium text-gray-800">{{ $item->sisa_bahan }}</span> {{ $item->unit }}</p>
-                        <p class="text-xs text-[var(--text-secondary)]">Letak: <span class="font-medium text-gray-800">{{ $item->letak }}</span></p>
-                        <p class="text-xs text-[var(--text-secondary)] mb-2">Kedaluwarsa: <span class="font-medium text-gray-800">{{ $item->expired ? \Carbon\Carbon::parse($item->expired)->format('d M Y') : 'N/A' }}</span></p>
-                        <button class="add-to-cart-btn mt-auto w-full bg-[var(--accent-primary)] text-white py-2 px-3 rounded-md font-semibold text-sm hover:bg-[var(--accent-hover)] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        <h3 class="font-semibold text-sm sm:text-base truncate item-name text-gray-800">{{ $item->nama }}</h3>
+                        <p class="text-xs text-gray-500">Sisa: <span class="font-medium text-gray-700">{{ $item->sisa_bahan }}</span> {{ $item->unit }}</p>
+                        <p class="text-xs text-gray-500">Letak: <span class="font-medium text-gray-700">{{ $item->letak }}</span></p>
+                        <p class="text-xs text-gray-500 mb-2">Kedaluwarsa: <span class="font-medium text-gray-700">{{ $item->expired ? \Carbon\Carbon::parse($item->expired)->format('d M Y') : 'N/A' }}</span></p>
+                        <button class="add-to-cart-btn mt-auto w-full bg-indigo-600 text-white py-2 px-3 rounded-lg font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                             data-id="BahanCairanLama-{{ $item->id }}" data-nama="{{ $item->nama }}" data-stok="{{ $item->sisa_bahan }}" data-unit="{{ $item->unit }}" data-tipe="BahanCairanLama"
                             @if($item->sisa_bahan <= 0) disabled @endif>
                             <i class="fa-solid fa-plus mr-1"></i> Tambah
@@ -546,58 +614,61 @@
                 @endforeach
             </div>
             <div class="text-center mt-8 show-more-container" style="display:none;">
-                <button class="show-more-btn inline-flex items-center justify-center rounded-full bg-indigo-100 px-6 py-2 font-semibold text-indigo-700 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-indigo-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <button class="show-more-btn inline-flex items-center justify-center rounded-full bg-indigo-100 px-6 py-2 font-semibold text-indigo-700 transition-all hover:-translate-y-0.5 hover:bg-indigo-200 hover:shadow-md">
                     <span>Lihat Semua</span><i class="fa-solid fa-angles-down ml-2"></i>
                 </button>
             </div>
         </section>
 
         <div id="no-results-message" class="text-center py-16 hidden">
-            <i class="fa-solid fa-box-open fa-4x text-gray-300"></i>
-            <h3 class="mt-4 text-xl font-semibold text-gray-800">Tidak Ada Hasil</h3>
+            <i class="fa-solid fa-box-open fa-4x text-indigo-200"></i>
+            <h3 class="mt-4 text-xl font-semibold text-gray-700">Tidak Ada Hasil</h3>
             <p class="mt-2 text-gray-500">Kami tidak dapat menemukan barang yang cocok.</p>
         </div>
     </div>
 </div>
 
-<button id="cart-button" class="fixed bottom-5 right-5 bg-[var(--accent-primary)] text-white w-14 h-14 md:w-16 md:h-16 rounded-full shadow-lg flex items-center justify-center text-2xl transform transition-transform hover:scale-110 z-20">
+{{-- Tombol keranjang --}}
+<button id="cart-button" class="fixed bottom-5 right-5 bg-indigo-600 text-white w-14 h-14 md:w-16 md:h-16 rounded-full shadow-xl flex items-center justify-center text-2xl transform transition-transform hover:scale-110 z-20 hover:bg-indigo-700">
     <i class="fa-solid fa-clipboard-list"></i>
-    <span id="cart-item-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center border-2 border-white">0</span>
+    <span id="cart-item-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center border-2 border-white">0</span>
 </button>
 
-<div id="cart-modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden">
+<div id="cart-modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden">
     <div id="cart-modal" class="modal-enter fixed inset-0 flex items-center justify-center p-4">
-        <form id="loan-form" action="{{ route('pinjam.store') }}" method="POST" class="bg-[var(--bg-secondary)] rounded-xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] flex flex-col">
+        <form id="loan-form" action="{{ route('pinjam.store') }}" method="POST" class="bg-white rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] flex flex-col">
             @csrf
-            <div class="flex justify-between items-center p-4 md:p-5 border-b border-[var(--border-color)]">
-                <h2 class="text-xl md:text-2xl font-bold">Daftar Peminjaman</h2>
+            <div class="flex justify-between items-center p-4 md:p-5 border-b border-gray-100 bg-indigo-50 rounded-t-2xl">
+                <h2 class="text-xl md:text-2xl font-bold text-indigo-700">Daftar Peminjaman</h2>
                 <button type="button" id="close-modal-btn" class="text-gray-400 hover:text-gray-800 text-3xl">&times;</button>
             </div>
             <div class="p-4 md:p-6 overflow-y-auto">
                 <div id="cart-items-container"></div>
                 <div id="cart-empty-message" class="text-center py-10">
-                    <i class="fa-solid fa-list-ul fa-3x text-gray-300"></i>
-                    <p class="mt-4 text-[var(--text-secondary)]">Daftar peminjaman masih kosong.</p>
+                    <i class="fa-solid fa-list-ul fa-3x text-indigo-200"></i>
+                    <p class="mt-4 text-gray-500">Daftar peminjaman masih kosong.</p>
                 </div>
-                <div id="borrower-form-container" class="mt-6 pt-6 border-t border-[var(--border-color)]" style="display:none;">
-                    <h3 class="text-lg md:text-xl font-bold mb-4">Data Diri Peminjam</h3>
+                <div id="borrower-form-container" class="mt-6 pt-6 border-t border-gray-100" style="display:none;">
+                    <h3 class="text-lg md:text-xl font-bold mb-4 text-gray-700">Data Diri Peminjam</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="nama_peminjam" class="block text-sm font-medium text-gray-700">Nama Lengkap <span class="text-red-500">*</span></label>
-                            <input type="text" id="nama_peminjam" name="nama_peminjam" required value="{{ old('nama_peminjam') }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm">
+                            <input type="text" id="nama_peminjam" name="nama_peminjam" required value="{{ old('nama_peminjam') }}"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 sm:text-sm">
                         </div>
                         <div>
                             <label for="nim_peminjam" class="block text-sm font-medium text-gray-700">NIM/NIP <span class="text-red-500">*</span></label>
-                            <input type="text" id="nim_peminjam" name="nim_peminjam" required value="{{ old('nim_peminjam') }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm">
+                            <input type="text" id="nim_peminjam" name="nim_peminjam" required value="{{ old('nim_peminjam') }}"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 sm:text-sm">
                         </div>
                         <div class="md:col-span-2">
                             <label for="no_hp_input" class="block text-sm font-medium text-gray-700">Nomor HP Aktif <span class="text-red-500">*</span></label>
-                            <div class="relative mt-1 rounded-md shadow-sm">
+                            <div class="relative mt-1 rounded-lg shadow-sm">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                     <span class="text-gray-500 sm:text-sm">+62</span>
                                 </div>
                                 <input type="tel" id="no_hp_input" required pattern="[0-9\s-]*"
-                                       class="block w-full rounded-md border-gray-300 pl-12 pr-3 py-2 focus:border-[var(--accent-primary)] focus:ring-[var(--accent-primary)] sm:text-sm"
+                                       class="block w-full rounded-lg border border-gray-200 pl-12 pr-3 py-2 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400 sm:text-sm"
                                        placeholder="812 3456 7890"
                                        value="{{ old('no_hp') ? substr(old('no_hp'), 3) : '' }}">
                             </div>
@@ -607,8 +678,8 @@
                 </div>
                 <div id="hidden-inputs-for-cart"></div>
             </div>
-            <div id="modal-footer" class="p-4 md:p-5 border-t border-[var(--border-color)] bg-gray-50 rounded-b-xl" style="display:none;">
-                <button type="submit" class="w-full bg-[var(--accent-primary)] text-white py-3 px-6 rounded-lg font-semibold text-base md:text-lg hover:bg-[var(--accent-hover)] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)]">
+            <div id="modal-footer" class="p-4 md:p-5 border-t border-gray-100 bg-gray-50 rounded-b-2xl" style="display:none;">
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-6 rounded-xl font-semibold text-base md:text-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     <i class="fa-solid fa-paper-plane mr-2"></i> Ajukan Peminjaman
                 </button>
             </div>
@@ -664,7 +735,7 @@ document.addEventListener('DOMContentLoaded', function () {
             modalFooter.style.display           = 'block';
             items.forEach(item => {
                 const el = document.createElement('div');
-                el.className = 'flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3 border-b border-gray-200';
+                el.className = 'flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3 border-b border-gray-100';
                 const step = item.tipe === 'Alat' ? '1' : '0.01';
                 el.innerHTML = `
                     <div class="flex-grow min-w-[120px]">
@@ -672,11 +743,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         <p class="text-sm text-gray-500">Stok: ${item.stok} ${item.unit}</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" class="quantity-change-btn w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 hover:bg-gray-300 font-bold flex-shrink-0" data-id="${item.id}" data-change="-1">-</button>
-                        <input type="number" value="${item.quantity}" min="1" max="${item.stok}" step="${step}" class="w-16 md:w-20 text-center border-gray-300 rounded-md quantity-input" data-id="${item.id}">
-                        <button type="button" class="quantity-change-btn w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 hover:bg-gray-300 font-bold flex-shrink-0" data-id="${item.id}" data-change="1">+</button>
+                        <button type="button" class="quantity-change-btn w-7 h-7 md:w-8 md:h-8 rounded-full bg-indigo-100 hover:bg-indigo-200 font-bold flex-shrink-0 text-indigo-700" data-id="${item.id}" data-change="-1">-</button>
+                        <input type="number" value="${item.quantity}" min="1" max="${item.stok}" step="${step}" class="w-16 md:w-20 text-center border border-gray-200 rounded-lg quantity-input" data-id="${item.id}">
+                        <button type="button" class="quantity-change-btn w-7 h-7 md:w-8 md:h-8 rounded-full bg-indigo-100 hover:bg-indigo-200 font-bold flex-shrink-0 text-indigo-700" data-id="${item.id}" data-change="1">+</button>
                     </div>
-                    <button type="button" class="remove-item-btn text-red-500 hover:text-red-700 text-lg ml-auto md:ml-0" data-id="${item.id}"><i class="fa-solid fa-trash-can"></i></button>
+                    <button type="button" class="remove-item-btn text-red-400 hover:text-red-600 text-lg ml-auto md:ml-0" data-id="${item.id}"><i class="fa-solid fa-trash-can"></i></button>
                 `;
                 listItemsContainer.appendChild(el);
             });
@@ -687,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const addItemToList = (button) => {
         if (!isLoggedIn) {
-            Swal.fire({ icon:'warning', title:'Login Diperlukan', text:'Anda harus login terlebih dahulu menggunakan email Uin AR-raniry untuk dapat meminjam barang.', confirmButtonText:'Login dengan Google', confirmButtonColor:'#4F46E5' })
+            Swal.fire({ icon:'warning', title:'Login Diperlukan', text:'Anda harus login terlebih dahulu menggunakan akun Google UIN Ar-Raniry untuk meminjam barang.', confirmButtonText:'Login dengan Google', confirmButtonColor:'#4F46E5' })
                 .then(r => { if (r.isConfirmed) window.location.href = '{{ route("google.redirect") }}'; });
             return;
         }
@@ -799,7 +870,6 @@ document.addEventListener('DOMContentLoaded', function () {
     renderList();
     if ("{{ $errors->any() }}") toggleModal(true);
 
-    //{{-- ===== NOTIFIKASI SUKSES + TOMBOL DOWNLOAD SURAT ===== --}}
     @if (session('success'))
         @if (session('nomor_surat'))
             Swal.fire({
@@ -823,7 +893,6 @@ document.addEventListener('DOMContentLoaded', function () {
         @endif
     @endif
 
-    //{{-- ===== NOTIFIKASI ERROR ===== --}}
     @if ($errors->any())
         Swal.fire({toast:true,position:'top-end',icon:'error',title:"{{ $errors->first() }}",showConfirmButton:false,timer:5000,timerProgressBar:true,
             didOpen:t=>{ t.addEventListener('mouseenter',Swal.stopTimer); t.addEventListener('mouseleave',Swal.resumeTimer); }});
@@ -831,7 +900,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<footer class="bg-[var(--accent-primary)] mt-16 md:mt-24 relative z-10">
+<footer class="mt-16 md:mt-24 relative z-10">
     <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="md:col-span-1">
@@ -858,12 +927,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     </li>
                     <li class="flex items-center">
                         <i class="fa-solid fa-phone text-indigo-200 mr-3 flex-shrink-0"></i>
-                        <a class="text-indigo-100 hover:text-white transition-colors"></a>
+                        <a href="tel:" class="text-indigo-100 hover:text-white transition-colors"></a>
                     </li>
                 </ul>
             </div>
         </div>
-        <div class="border-t border-indigo-400 py-6 text-center">
+        <div class="border-t border-indigo-400/40 py-6 text-center">
             <p class="text-indigo-200 text-sm">© {{ date('Y') }} Laboratorium Terpadu FST UIN Ar-Raniry. All rights reserved.</p>
         </div>
     </div>
